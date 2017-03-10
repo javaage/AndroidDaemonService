@@ -1,5 +1,6 @@
 package com.clock.daemon;
 
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -9,12 +10,29 @@ import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import com.clock.daemon.service.BackgroundService;
 import com.clock.daemon.service.GrayService;
 import com.clock.daemon.service.WhiteService;
+import com.clock.daemon.util.AsyncTextViewLoader;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.protocol.HTTP;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
+import java.io.InputStreamReader;
+
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+    private TextView txtSocket;
 
     private final static String TAG = MainActivity.class.getSimpleName();
     /**
@@ -27,11 +45,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        txtSocket = (TextView)findViewById(R.id.txtSocket);
+
         findViewById(R.id.btn_white).setOnClickListener(this);
         findViewById(R.id.btn_gray).setOnClickListener(this);
         findViewById(R.id.btn_black).setOnClickListener(this);
         findViewById(R.id.btn_background_service).setOnClickListener(this);
 
+        AsyncTextViewLoader textViewLoader = new AsyncTextViewLoader(this.txtSocket);
+        textViewLoader.execute();
     }
 
     @Override
