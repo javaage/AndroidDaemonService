@@ -1,8 +1,10 @@
 package com.clock.daemon.service;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.v7.app.NotificationCompat;
@@ -10,6 +12,8 @@ import android.util.Log;
 
 import com.clock.daemon.MainActivity;
 import com.clock.daemon.R;
+import com.clock.daemon.util.AsyncTextViewLoader;
+import com.clock.daemon.util.SimpleEchoSocket;
 
 /**
  * 正常的系统前台进程，会在系统通知栏显示一个Notification通知图标
@@ -18,6 +22,9 @@ import com.clock.daemon.R;
  * @since 2016-04-12
  */
 public class WhiteService extends Service {
+    public static String strUrl="";
+
+    public static SimpleEchoSocket socket;
 
     private final static String TAG = WhiteService.class.getSimpleName();
 
@@ -27,6 +34,7 @@ public class WhiteService extends Service {
     public void onCreate() {
         Log.i(TAG, "WhiteService->onCreate");
         super.onCreate();
+        getUrl();
     }
 
     @Override
@@ -39,11 +47,18 @@ public class WhiteService extends Service {
         builder.setContentText("I am a foreground service");
         builder.setContentInfo("Content Info");
         builder.setWhen(System.currentTimeMillis());
+
+        builder.setPriority(NotificationCompat.PRIORITY_MAX);
+        builder.setOngoing(true);
+
         Intent activityIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, activityIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setContentIntent(pendingIntent);
         Notification notification = builder.build();
-        startForeground(FOREGROUND_ID, notification);
+
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.notify(FOREGROUND_ID, notification);
+
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -57,5 +72,10 @@ public class WhiteService extends Service {
     public void onDestroy() {
         Log.i(TAG, "WhiteService->onDestroy");
         super.onDestroy();
+    }
+
+    public void getUrl(){
+        AsyncTextViewLoader textViewLoader = new AsyncTextViewLoader(WhiteService.this);
+        textViewLoader.execute();
     }
 }
