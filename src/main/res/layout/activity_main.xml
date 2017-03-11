@@ -38,4 +38,14 @@
         android:layout_height="wrap_content"
         android:text="普通后台 Service 进程" />
 
+    <Button
+        android:id="@+id/btn_open_socket"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="开启socket进程" />
+    <TextView
+        android:id="@+id/txt_socket_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="请开启socket" />
 </LinearLayout>

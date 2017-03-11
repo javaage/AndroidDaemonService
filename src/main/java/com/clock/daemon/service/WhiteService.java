@@ -22,9 +22,6 @@ import com.clock.daemon.util.SimpleEchoSocket;
  * @since 2016-04-12
  */
 public class WhiteService extends Service {
-    public static String strUrl="";
-
-    public static SimpleEchoSocket socket;
 
     private final static String TAG = WhiteService.class.getSimpleName();
 
@@ -34,7 +31,6 @@ public class WhiteService extends Service {
     public void onCreate() {
         Log.i(TAG, "WhiteService->onCreate");
         super.onCreate();
-        getUrl();
     }
 
     @Override
@@ -72,10 +68,5 @@ public class WhiteService extends Service {
     public void onDestroy() {
         Log.i(TAG, "WhiteService->onDestroy");
         super.onDestroy();
-    }
-
-    public void getUrl(){
-        AsyncTextViewLoader textViewLoader = new AsyncTextViewLoader(WhiteService.this);
-        textViewLoader.execute();
     }
 }

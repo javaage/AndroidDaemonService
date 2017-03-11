@@ -39,8 +39,9 @@ import java.util.concurrent.TimeUnit;
 
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-    private TextView txtSocket;
+    private TextView txtSocket,txtSocketStatus;
     private final static String TAG = MainActivity.class.getSimpleName();
+    public static SimpleEchoSocket socket;
     /**
      * 黑色唤醒广播的action
      */
@@ -52,17 +53,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         txtSocket = (TextView)findViewById(R.id.txtSocket);
+        txtSocketStatus = (TextView)findViewById(R.id.txt_socket_status);
 
         findViewById(R.id.btn_white).setOnClickListener(this);
         findViewById(R.id.btn_gray).setOnClickListener(this);
         findViewById(R.id.btn_black).setOnClickListener(this);
         findViewById(R.id.btn_background_service).setOnClickListener(this);
+        findViewById(R.id.btn_open_socket).setOnClickListener(this);
+        findViewById(R.id.txt_socket_status).setOnClickListener(this);
+        getUrl();
     }
 
     @Override
     protected void onPostResume() {
         super.onPostResume();
-        txtSocket.setText(WhiteService.strUrl);
     }
 
     @Override
@@ -84,6 +88,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else if (viewId == R.id.btn_background_service) {//普通的后台进程
             Intent bgIntent = new Intent(getApplicationContext(), BackgroundService.class);
             startService(bgIntent);
+        } else if (viewId == R.id.btn_open_socket) {//普通的后台进程
+            startSocket(txtSocket.getText().toString());
+        } else if (viewId == R.id.txt_socket_status) {//普通的后台进程
+            if(socket!=null && socket.session1!=null && socket.session1.isOpen()==true){
+                txtSocketStatus.setText("socket开启");
+            }else{
+                txtSocketStatus.setText("尚未开启");
+            }
+        }
+    }
+
+    public void getUrl(){
+        AsyncTextViewLoader textViewLoader = new AsyncTextViewLoader(MainActivity.this,txtSocket);
+        textViewLoader.execute();
+    }
+
+    private void startSocket(String strUrl){
+        if(socket!=null && socket.session1 !=null && socket.session1.isOpen())
+            return;
+
+        WebSocketClient client = new WebSocketClient();
+        socket = new SimpleEchoSocket(MainActivity.this);
+        try {
+            client.start();
+            URI echoUri = new URI(strUrl);
+            ClientUpgradeRequest request = new ClientUpgradeRequest();
+            client.connect(socket, echoUri, request);
+        } catch (Throwable t) {
+            t.printStackTrace();
         }
     }
 }

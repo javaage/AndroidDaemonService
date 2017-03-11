@@ -2,10 +2,14 @@ package com.clock.daemon.util;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.app.NotificationCompat;
 
+import com.clock.daemon.MainActivity;
+import com.clock.daemon.R;
 import com.clock.daemon.service.WhiteService;
 
 import java.io.IOException;
@@ -26,11 +30,11 @@ import org.json.JSONObject;
 public class SimpleEchoSocket {
 
     private int FOREGROUND_ID = 2001;
-    private WhiteService service;
+    private MainActivity service;
     public Session session1;
     private Timer timer;
 
-    public SimpleEchoSocket(WhiteService context){
+    public SimpleEchoSocket(MainActivity context){
         this.service = context;
         this.timer = new Timer();
     }
@@ -81,14 +85,23 @@ public class SimpleEchoSocket {
         }catch (Exception exp){
             System.out.println(exp.toString());
         }
-        NotificationManager manager = (NotificationManager) service.getSystemService(android.content.Context.NOTIFICATION_SERVICE);
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(service);
-        builder.setContentTitle(title)
-                .setContentText(content)
-                .setSmallIcon(android.R.drawable.ic_dialog_alert)
-                .setDefaults(Notification.DEFAULT_ALL)
-                .setAutoCancel(true);
 
-        manager.notify(++FOREGROUND_ID, builder.build());
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(service);
+        builder.setSmallIcon(R.mipmap.ic_launcher);
+        builder.setContentTitle(title);
+        builder.setContentText(content);
+        builder.setContentInfo("message");
+        builder.setWhen(System.currentTimeMillis());
+
+        builder.setPriority(NotificationCompat.PRIORITY_MAX);
+        builder.setAutoCancel(true);
+
+        Intent activityIntent = new Intent(service, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(service, 1, activityIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        builder.setContentIntent(pendingIntent);
+        Notification notification = builder.build();
+
+        NotificationManager mNotificationManager = (NotificationManager) service.getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.notify(++FOREGROUND_ID, notification);
     }
 }

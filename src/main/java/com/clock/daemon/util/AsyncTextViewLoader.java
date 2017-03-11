@@ -20,9 +20,11 @@ import java.net.URI;
 
 public class AsyncTextViewLoader extends AsyncTask<String, Integer, Boolean> {
     private String txtResult;
-    private WhiteService context;
-    public AsyncTextViewLoader(WhiteService context) {
+    private MainActivity context;
+    private TextView tv;
+    public AsyncTextViewLoader(MainActivity context, TextView tv) {
         this.context = context;
+        this.tv = tv;
     }
 
     @Override
@@ -43,7 +45,6 @@ public class AsyncTextViewLoader extends AsyncTask<String, Integer, Boolean> {
             System.out.println(response.getStatusLine().getStatusCode());
             if (entity != null) {
                 txtResult = EntityUtils.toString(entity);
-                WhiteService.strUrl = txtResult;
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -62,7 +63,7 @@ public class AsyncTextViewLoader extends AsyncTask<String, Integer, Boolean> {
 
     @Override
     protected void onPostExecute(Boolean result) {
-        startSocket(txtResult);
+        this.tv.setText(txtResult);
     }
 
     @Override
@@ -70,19 +71,5 @@ public class AsyncTextViewLoader extends AsyncTask<String, Integer, Boolean> {
         System.out.println("Getting...");
     }
 
-    private void startSocket(String strUrl){
-        if(WhiteService.socket!=null && WhiteService.socket.session1 !=null && WhiteService.socket.session1.isOpen())
-            return;
 
-        WebSocketClient client = new WebSocketClient();
-        WhiteService.socket = new SimpleEchoSocket(context);
-        try {
-            client.start();
-            URI echoUri = new URI(strUrl);
-            ClientUpgradeRequest request = new ClientUpgradeRequest();
-            client.connect(WhiteService.socket, echoUri, request);
-        } catch (Throwable t) {
-            t.printStackTrace();
-        }
-    }
 }
